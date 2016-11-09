@@ -15,13 +15,14 @@ def date_reducer(date):
 class feature_preprocessing():
 
     def __init__(self):
-        self.data = pd.read_csv("train_2011_2012_2013.csv", sep=";")
+        self.data = pd.read_csv('../preprocessed_data.csv', sep=";",nrows=1000000)
 
 
     def preprocess_date(self):
         self.data["DATE"] = self.data ["DATE"].apply(date_reducer)
-        #self.data = self.data.groupby(['DATE','ASS_ASSIGNMENT','DAY_OFF','WEEK_DAY']).sum()
-        #self.data = self.data.reset_index()
+        self.data = self.data.groupby(['DATE','ASS_ID','DAY_OFF','WEEK_DAY']).sum()
+        self.data = self.data.reset_index()
+
 
     def date_vector(self):
         self.data['YEAR'] = self.data['DATE'].apply(lambda x: x[4])
@@ -32,23 +33,19 @@ class feature_preprocessing():
         self.data['TIME'] = self.data ["DATE"].apply(lambda x: x[0])
         self.data['YEAR_DAY']= self.data["DATE"].apply(lambda x: x[1])
     def week_day_to_vector(self):
-        for key,day in CONFIG.days.items():
-            self.data[day] = self.data['WEEK_DAY'].apply(lambda x: int(x == key))
+        self.data['WEEK_DAY'] = self.data['DATE'].apply(lambda x: x[2])
+        for key, day in CONFIG.days.items():
+            self.data[day] = self.data["WEEK_DAY"].apply(lambda x: int(x == key))
 
-    def ass_assignement_to_vector(self):
-        ids = self.data['ASS_ID'].unique()
-        for id in ids:
-            self.data[id]= self.data['ASS_ID'].apply(lambda x: int(x==id))
 
-        #self.data['ASS_ID'] = self.data['ASS_ASSIGNMENT'].apply(lambda x: int(CONFIG.ass_assign[x]))
 
     def full_preprocess(self, used_columns=CONFIG.default_columns, keep_all = False, remove_columns = []):
         self.preprocess_date()
         self.date_vector()
         self.week_day_to_vector()
-        self.ass_assignement_to_vector()
-        #self.data = self.data.drop(['DATE', 'DAY_OFF', 'YEAR'], axis=1)
+        self.data = self.data.drop(['DATE', 'DAY_OFF', 'YEAR'], axis=1)
         #self.data = self.data.drop(['WEEK_DAY'], axis=1)
+
 
         if not keep_all:
             print(used_columns)
@@ -57,13 +54,13 @@ class feature_preprocessing():
             self.data = self.data.drop(remove_columns, axis=1)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #execute the code only if the file is executed directly and not imported
     pp = feature_preprocessing()
     pp.full_preprocess(keep_all=True)
-    print()
+    print(pp.data)
 
 
-    print(pp.data.drop(['DAY_DS'],axis=1).columns)
+
     #print(pp.data.sort_values(by=['CSPL_CALLS'], ascending=[0]))
 
 
