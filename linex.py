@@ -9,4 +9,4 @@ def linex(y_true, y_pred):
 
 def evalerror_linex(y_true, y_pred):
      alpha = -0.1
-     return 'error', np.exp(alpha*(y_true-y_pred)) - alpha*(y_true-y_pred) - 1
+     return 'error', np.mean(np.exp(alpha*(y_true-y_pred)) - alpha*(y_true-y_pred) - 1)
