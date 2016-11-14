@@ -20,8 +20,8 @@ class feature_preprocessing():
 
     def preprocess_date(self):
         self.data["DATE"] = self.data ["DATE"].apply(date_reducer)
-        self.data = self.data.groupby(['DATE','ASS_ID','DAY_OFF','WEEK_DAY']).sum()
-        self.data = self.data.reset_index()
+        #self.data = self.data.groupby(['DATE','ASS_ID','DAY_OFF','WEEK_DAY']).sum()
+        #self.data = self.data.reset_index()
 
 
     def date_vector(self):
@@ -32,19 +32,13 @@ class feature_preprocessing():
             self.data[month] = self.data['MONTH'].apply(lambda x: int(x == key))
         self.data['TIME'] = self.data ["DATE"].apply(lambda x: x[0])
         self.data['YEAR_DAY']= self.data["DATE"].apply(lambda x: x[1])
-    #def week_day_to_vector(self):
-        #self.data['WEEK_DAY'] = self.data['DATE'].apply(lambda x: x[2])
-        #for key, day in CONFIG.days.items():
-        #   self.data[day] = self.data["WEEK_DAY"].apply(lambda x: int(x == key))
-
-
+    
 
     def full_preprocess(self, used_columns=CONFIG.default_columns, keep_all = False, remove_columns = []):
         self.preprocess_date()
         self.date_vector()
-        #self.week_day_to_vector()
         self.data = self.data.drop(['DATE', 'DAY_OFF', 'YEAR'], axis=1)
-        #self.data = self.data.drop(['WEEK_DAY'], axis=1)
+        
 
 
         if not keep_all:
