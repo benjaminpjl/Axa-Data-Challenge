@@ -32,10 +32,21 @@ class feature_preprocessing():
             self.data[month] = self.data['MONTH'].apply(lambda x: int(x == key))
         self.data['TIME'] = self.data ["DATE"].apply(lambda x: x[0])
         self.data['YEAR_DAY']= self.data["DATE"].apply(lambda x: x[1])
+
+    def week_day_to_vector(self):
+        for key,day in CONFIG.days.items():
+            self.data[day] = self.data['WEEK_DAY'].apply(lambda x: int(x == key))
+
+    def ass_assignement_to_vector(self):
+        ids = self.data['ASS_ID'].unique()
+        for id in ids:
+            self.data[id]= self.data['ASS_ID'].apply(lambda x: int(x==id))
     
 
     def full_preprocess(self, used_columns=CONFIG.default_columns, keep_all = False, remove_columns = []):
         self.preprocess_date()
+        self.week_day_to_vector()
+        self.ass_assignement_to_vector()
         self.date_vector()
         self.data = self.data.drop(['DATE', 'DAY_OFF', 'YEAR'], axis=1)
         
