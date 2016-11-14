@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.abspath("/Users/benjaminpujol/Desktop/Projet-avec-le-mexicain/Code/"))
+sys.path.append(os.path.abspath("/Users/benjaminpujol/Desktop/Projet-avec-le-mexicain"))
 import pandas as pd
 import time
 from configuration import CONFIG
@@ -37,7 +37,27 @@ def normalize(df, column):
 #Loading data
 class load_data:
     def __init__(self):
-        data = pd.read_csv('train_2011_2012_2013.csv', sep=";", usecols=CONFIG.useful_columns, nrows = 1000000)  #Choose nrows, number of rows
+        data = pd.read_csv('train_2011_2012_2013.csv', sep=";", usecols=CONFIG.useful_columns, nrows = 300000)  #Choose nrows, number of rows
+        data.set_index('DATE')
+        nrows = len(data.index)
+        
+        #Creating features Jour et Nuit
+        tper_team = data['TPER_TEAM'].values.tolist()
+    
+        jour = []
+        nuit = []
+    
+        for i in range(nrows):
+            if(tper_team[i] == "Jours"):
+                jour.append(1)
+                nuit.append(0)
+            else:
+                nuit.append(1)
+                jour.append(0)
+
+        data['JOUR'] = jour
+        data['NUIT'] = nuit
+        
         week_day = data['DAY_WE_DS'].map(lambda day: find_day(day))  #Dimanche->0, Lundi->1, Mardi->2, etc...
         data['WEEK_DAY'] = week_day
         data['ASS_ID'] = data['ASS_ASSIGNMENT'].apply(lambda x: int(CONFIG.ass_assign[x])) #Create ASS_ID (int between 0 and 28) from ASS_ASSIGNMENT as defined in configuration.py
