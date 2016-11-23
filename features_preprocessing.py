@@ -37,7 +37,7 @@ def date_reducer(date):
 class feature_preprocessing():
 
     def __init__(self):
-        self.data = pd.read_csv('train_2011_2012_2013.csv', sep=";", usecols=CONFIG.useful_columns, nrows = 300000)
+        self.data = pd.read_csv('train_2011_2012_2013.csv', sep=";", usecols=CONFIG.useful_columns, nrows =5000000)
 
 
     def preprocess_date(self):
@@ -45,6 +45,9 @@ class feature_preprocessing():
         #self.data = self.data.groupby(['DATE','ASS_ID','DAY_OFF','WEEK_DAY']).sum()
         #self.data = self.data.reset_index()
 
+    def select_assid(self, assid):
+        self.data=self.data.loc[self.data['ASS_ID'] == assid]
+    
 
     def date_vector(self):
         self.data['YEAR'] = self.data['DATE'].apply(lambda x: x[4])
@@ -59,9 +62,9 @@ class feature_preprocessing():
         self.data['ASS_ID'] = self.data['ASS_ASSIGNMENT'].apply(lambda x: int(CONFIG.ass_assign[x]))
     
     def ass_assignement_to_vector(self): # Create 28 features for each ASS_ASSIGNMENT with values 0 or 1
-        ids = self.data['ASS_ASSIGNMENT'].unique()
-        for id in ids:
-            self.data[id]= self.data['ASS_ASSIGNMENT'].apply(lambda x: int(x==id))
+        its = self.data['ASS_ASSIGNMENT'].unique()
+        for it in its:
+            self.data[it]= self.data['ASS_ASSIGNMENT'].apply(lambda x: int(x==it))
 
     def jour_nuit_creation(self):  #Création de la feature jour nuit
 
@@ -89,14 +92,17 @@ class feature_preprocessing():
             self.data[day] = self.data['WEEK_DAY'].apply(lambda x: int(x == key))
     
 
-    def full_preprocess(self, used_columns=CONFIG.default_columns, keep_all = False, remove_columns = []):
+    def full_preprocess(self, assid, keep_all_ass_id = False, used_columns=CONFIG.default_columns, keep_all = False, remove_columns = []):
+        self.ass_id_creation()
+        if keep_all_ass_id!=True:
+            self.select_assid(assid)
         self.preprocess_date()
         self.jour_nuit_creation()
-        self.ass_id_creation()
         self.week_day_to_vector()
-        self.ass_assignement_to_vector()
+        #self.ass_assignement_to_vector()
         self.date_vector()
-        self.data = self.data.drop(['DATE','YEAR'], axis=1)
+        self.data = self.data[CONFIG.default_columns]
+ 
         
 
 
@@ -109,7 +115,7 @@ class feature_preprocessing():
 
 if __name__ == "__main__": #execute the code only if the file is executed directly and not imported
     pp = feature_preprocessing()
-    pp.full_preprocess(keep_all=False)
+    pp.full_preprocess(6, keep_all = False)
     print(pp.data)
     pp.data.to_csv('../preprocessed_data.csv', sep=";")
 
