@@ -36,12 +36,10 @@ class submission_preprocessing():
 
     def date_vector(self):   #Create YEAR, MONTH and YEAR_DAY
         self.data['YEAR'] = self.data['DATE'].apply(lambda x: x[4])
-          
-        for key, year in CONFIG.years.items():
-            self.data[year] = self.data['YEAR'].apply(lambda x: int(x == key))
+        for year in ['2011','2012','2013']:
+            self.data[year] = self.data['YEAR'].apply(lambda x: (int(year) == x)*1)   
             
         self.data['MONTH'] = self.data['DATE'].apply(lambda x: x[3])
-
         for key, month in CONFIG.months.items():
             self.data[month] = self.data['MONTH'].apply(lambda x: int(x == key))
         self.data['TIME'] = self.data["DATE"].apply(lambda x: x[0])
