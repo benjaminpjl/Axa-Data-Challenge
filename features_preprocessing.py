@@ -36,9 +36,12 @@ def date_reducer(date):
 
 class feature_preprocessing():
 
-    def __init__(self):
-        self.data = pd.read_csv('train_2011_2012_2013.csv', sep=";", usecols=CONFIG.useful_columns, nrows =5000000)
-
+    def __init__(self, filename = None, sepa = None, usecols = CONFIG.useful_columns):
+        if filename == None and sepa == None:
+            self.data = pd.DataFrame()
+        else:
+            self.data = pd.read_csv(filename, sep=sepa , usecols=usecols)
+    
 
     def preprocess_date(self):
         self.data["DATE"] = self.data ["DATE"].apply(date_reducer)
@@ -51,11 +54,14 @@ class feature_preprocessing():
 
     def date_vector(self):
         self.data['YEAR'] = self.data['DATE'].apply(lambda x: x[4])
+        
+        for year in ['2011','2012','2013']:
+            self.data[year] = self.data['YEAR'].apply(lambda x: (int(year) == x)*1)
         self.data['MONTH'] = self.data['DATE'].apply(lambda x: x[3])
 
         for key, month in CONFIG.months.items():
             self.data[month] = self.data['MONTH'].apply(lambda x: int(x == key))
-        self.data['TIME'] = self.data ["DATE"].apply(lambda x: x[0])
+        self.data['TIME'] = self.data ["DATE"].apply(lambda x: (x[0] in range(450,1411))*(x[0]-450)/30 + (x[0] in range(0,451))*(x[0]/30+1) + (x[0] in range(1411,1441))*0)
         self.data['YEAR_DAY']= self.data["DATE"].apply(lambda x: x[1])
 
     def ass_id_creation(self): # Create ASS_ID (int between 0 and 28) from ASS_ASSIGNMENT as defined in configuration.py
